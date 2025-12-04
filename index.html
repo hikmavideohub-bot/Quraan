@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مشغل القرآن الكريم - أصوات متعددة بدون إعلانات</title>
+    <title>مشغل القرآن الكريم - استمع إلى القرآن بأصوات متعددة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -52,22 +52,17 @@
             font-weight: 700;
         }
         
+        .basmala {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #f0f7da;
+            font-weight: 600;
+        }
+        
         .subtitle {
             font-size: 1.2rem;
             opacity: 0.9;
-            margin-bottom: 20px;
-        }
-        
-        .no-ads-badge {
-            display: inline-block;
-            background-color: var(--accent-color);
-            color: var(--primary-color);
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 1rem;
-            margin-top: 10px;
-            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
         }
         
         .main-content {
@@ -121,7 +116,7 @@
             color: var(--primary-color);
         }
         
-        select, .sura-buttons {
+        select {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #ddd;
@@ -134,46 +129,6 @@
         select:focus {
             border-color: var(--secondary-color);
             outline: none;
-        }
-        
-        .sura-buttons-container {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .sura-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-            gap: 10px;
-            border: none;
-            padding: 0;
-            background: transparent;
-        }
-        
-        .sura-btn {
-            padding: 10px 5px;
-            background-color: var(--accent-color);
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        
-        .sura-btn:hover {
-            background-color: var(--secondary-color);
-            color: white;
-            transform: translateY(-3px);
-        }
-        
-        .sura-btn.active {
-            background-color: var(--primary-color);
-            color: white;
         }
         
         .audio-player {
@@ -249,7 +204,7 @@
         
         .reciters-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             margin-top: 15px;
         }
@@ -258,9 +213,9 @@
             background-color: var(--accent-color);
             border-radius: 10px;
             padding: 20px;
-            cursor: pointer;
             transition: all 0.3s;
             border: 2px solid transparent;
+            position: relative;
         }
         
         .reciter-card:hover {
@@ -278,12 +233,56 @@
             font-size: 1.2rem;
             color: var(--primary-color);
             margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .reciter-style {
             color: #666;
             font-size: 0.9rem;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .reciter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .select-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .select-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .download-btn {
+            background-color: #f0f0f0;
+            color: var(--text-color);
+            border: 1px solid #ddd;
+        }
+        
+        .download-btn:hover {
+            background-color: #e0e0e0;
         }
         
         .current-playing {
@@ -362,27 +361,6 @@
             font-size: 1.1rem;
         }
         
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .page-btn {
-            padding: 8px 15px;
-            background-color: var(--accent-color);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .page-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
         .success-message {
             color: #2c5f2d;
             background-color: #e8f5e9;
@@ -397,6 +375,10 @@
                 font-size: 2rem;
             }
             
+            .basmala {
+                font-size: 1.5rem;
+            }
+            
             .section-title {
                 font-size: 1.5rem;
             }
@@ -408,6 +390,10 @@
             .features {
                 grid-template-columns: 1fr;
             }
+            
+            .reciter-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -415,10 +401,8 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-quran"></i> مشغل القرآن الكريم</h1>
-            <p class="subtitle">استمع إلى القرآن الكريم بأصوات أشهر القراء بدون إعلانات مزعجة</p>
-            <div class="no-ads-badge">
-                <i class="fas fa-بسم الله الرحمن الرحيم"></i>
-            </div>
+            <div class="basmala">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            <p class="subtitle">استمع إلى القرآن الكريم بأصوات أشهر القراء</p>
         </header>
         
         <div class="main-content">
@@ -431,15 +415,6 @@
                         <select id="sura-select">
                             <!-- سيتم ملؤها بواسطة JavaScript -->
                         </select>
-                    </div>
-                    
-                    <div class="sura-buttons-container">
-                        <div class="pagination" id="sura-pagination">
-                            <!-- أزرار التصفح بين صفحات السور -->
-                        </div>
-                        <div class="sura-buttons" id="sura-buttons">
-                            <!-- سيتم ملؤها بواسطة JavaScript -->
-                        </div>
                     </div>
                     
                     <div class="audio-player">
@@ -478,7 +453,7 @@
                 
                 <div class="current-playing" id="current-playing">
                     <div class="current-sura">الفاتحة</div>
-                    <div class="current-reciter">مشاري راشد العفاسي</div>
+                    <div class="current-reciter">محمود خليل الحصري</div>
                     <div id="audio-loading" class="loading" style="display: none;">
                         <i class="fas fa-spinner fa-spin"></i> جار تحميل الصوت...
                     </div>
@@ -490,7 +465,7 @@
             
             <section class="reciters-section">
                 <h2 class="section-title"><i class="fas fa-microphone-alt"></i> اختر القارئ</h2>
-                <p style="margin-bottom: 20px; color: #666;">اختر من بين أشهر القراء بأصوات مختلفة ومميزة</p>
+                <p style="margin-bottom: 20px; color: #666;">اختر من بين أشهر القراء أو حمل السورة بصوت القارئ المفضل لديك</p>
                 
                 <div class="reciters-grid" id="reciters-grid">
                     <!-- سيتم ملؤها بواسطة JavaScript -->
@@ -502,7 +477,7 @@
                 </div>
                 
                 <div id="source-info" class="success-message" style="margin-top: 15px;">
-                    <i class="fas fa-info-circle"></i> المصدر: mp3quran.net - متوافق مع جميع المتصفحات
+                    <i class="fas fa-info-circle"></i> المصدر: mp3quran.net
                 </div>
             </section>
         </div>
@@ -510,18 +485,18 @@
         <div class="features">
             <div class="feature-card">
                 <div class="feature-icon">
-                    <i class="fas fa-adjust"></i>
-                </div>
-                <h3 class="feature-title">خالي من الإعلانات</h3>
-                <p>لا توجد إعلانات مزعجة على الإطلاق، تجربة استماع نقية ومريحة.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
                     <i class="fas fa-headphones-alt"></i>
                 </div>
                 <h3 class="feature-title">أصوات متعددة</h3>
                 <p>مجموعة متنوعة من أشهر القراء لتختار الصوت الذي يناسبك.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <h3 class="feature-title">إمكانية التحميل</h3>
+                <p>يمكنك تحميل أي سورة بصوت القارئ الذي تختاره.</p>
             </div>
             
             <div class="feature-card">
@@ -547,13 +522,18 @@
             // تعيين السنة الحالية في التذييل
             document.getElementById('current-year').textContent = new Date().getFullYear();
             
-            // بيانات القراء مع روابط موثوقة من mp3quran.net
+            // بيانات القراء مع محمود خليل الحصري كأول قارئ
             const reciters = [
+                { 
+                    id: "husary", 
+                    name: "محمود خليل الحصري", 
+                    style: "ترتيل",
+                    baseUrl: "https://server8.mp3quran.net/husary"
+                },
                 { 
                     id: "mishari", 
                     name: "مشاري راشد العفاسي", 
                     style: "حدر",
-                    // استخدام مصدر موثوق يعمل مع جميع المتصفحات
                     baseUrl: "https://server8.mp3quran.net/afs"
                 },
                 { 
@@ -561,12 +541,6 @@
                     name: "عبد الباسط عبد الصمد", 
                     style: "ترتيل",
                     baseUrl: "https://server8.mp3quran.net/abdulbasit"
-                },
-                { 
-                    id: "husary", 
-                    name: "محمود خليل الحصري", 
-                    style: "ترتيل",
-                    baseUrl: "https://server8.mp3quran.net/husary"
                 },
                 { 
                     id: "saad", 
@@ -588,7 +562,7 @@
                 }
             ];
             
-            // بيانات جميع سور القرآن (114 سورة) مع أسمائها
+            // بيانات جميع سور القرآن (114 سورة)
             const suras = [
                 { number: 1, name: "الفاتحة" },
                 { number: 2, name: "البقرة" },
@@ -715,8 +689,6 @@
             const currentTimeDisplay = document.getElementById('current-time');
             const durationDisplay = document.getElementById('duration');
             const suraSelect = document.getElementById('sura-select');
-            const suraButtonsContainer = document.getElementById('sura-buttons');
-            const suraPagination = document.getElementById('sura-pagination');
             const recitersGrid = document.getElementById('reciters-grid');
             const currentPlayingElement = document.getElementById('current-playing');
             const audioLoadingElement = document.getElementById('audio-loading');
@@ -724,11 +696,8 @@
             const audioTestElement = document.getElementById('audio-test');
             
             // المتغيرات الحالية
-            let currentReciter = reciters[0];
+            let currentReciter = reciters[0]; // محمود خليل الحصري
             let currentSura = suras[0];
-            let currentPage = 1;
-            const itemsPerPage = 20;
-            const totalPages = Math.ceil(suras.length / itemsPerPage);
             
             // تهيئة واجهة المستخدم
             function initializeUI() {
@@ -746,14 +715,17 @@
                 });
                 suraSelect.value = currentSura.number;
                 
-                // إنشاء أزرار التصفح بين صفحات السور
-                createPaginationButtons();
-                
-                // عرض السور للصفحة الحالية
-                showSuraPage(currentPage);
-                
                 // إنشاء بطاقات القراء
+                createReciterCards();
+                
+                // تحديث المصدر الصوتي الأول
+                updateAudioSource();
+            }
+            
+            // إنشاء بطاقات القراء مع أزرار التحميل
+            function createReciterCards() {
                 recitersGrid.innerHTML = '';
+                
                 reciters.forEach(reciter => {
                     const card = document.createElement('div');
                     card.className = 'reciter-card';
@@ -761,84 +733,54 @@
                         card.classList.add('active');
                     }
                     
+                    // إنشاء رابط التحميل للسورة الحالية
+                    const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
+                    const downloadUrl = `${reciter.baseUrl}/${suraNumberFormatted}.mp3`;
+                    const downloadFileName = `${currentSura.name}-${reciter.name}.mp3`;
+                    
                     card.innerHTML = `
-                        <div class="reciter-name">${reciter.name}</div>
+                        <div class="reciter-name">
+                            <span>${reciter.name}</span>
+                            ${reciter.id === currentReciter.id ? '<span style="font-size:0.8rem; color: var(--secondary-color);"><i class="fas fa-check-circle"></i> مفعل</span>' : ''}
+                        </div>
                         <div class="reciter-style">${reciter.style}</div>
-                        <div style="margin-top: 10px; font-size: 0.8rem; color: #888;">
-                            <i class="fas fa-volume-up"></i> اضغط للتشغيل بهذا الصوت
+                        <div class="reciter-actions">
+                            <button class="action-btn select-btn" data-reciter="${reciter.id}">
+                                <i class="fas fa-play-circle"></i> تشغيل
+                            </button>
+                            <a href="${downloadUrl}" download="${downloadFileName}" class="action-btn download-btn">
+                                <i class="fas fa-download"></i> تحميل
+                            </a>
                         </div>
                     `;
-                    
-                    card.addEventListener('click', () => {
-                        selectReciter(reciter.id);
-                    });
                     
                     recitersGrid.appendChild(card);
                 });
                 
-                // تحديث المصدر الصوتي الأول
-                updateAudioSource();
-            }
-            
-            // إنشاء أزرار التصفح بين صفحات السور
-            function createPaginationButtons() {
-                suraPagination.innerHTML = '';
-                
-                for (let i = 1; i <= totalPages; i++) {
-                    const button = document.createElement('button');
-                    button.className = 'page-btn';
-                    if (i === currentPage) {
-                        button.classList.add('active');
-                    }
-                    button.textContent = i;
-                    button.dataset.page = i;
-                    
-                    button.addEventListener('click', () => {
-                        currentPage = i;
-                        showSuraPage(currentPage);
-                        updatePaginationButtons();
+                // إضافة حدث النقر لأزرار التشغيل
+                document.querySelectorAll('.select-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const reciterId = this.getAttribute('data-reciter');
+                        selectReciter(reciterId);
                     });
-                    
-                    suraPagination.appendChild(button);
-                }
-            }
-            
-            // تحديث أزرار التصفح
-            function updatePaginationButtons() {
-                document.querySelectorAll('.page-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (parseInt(btn.dataset.page) === currentPage) {
-                        btn.classList.add('active');
-                    }
                 });
             }
             
-            // عرض السور للصفحة المحددة
-            function showSuraPage(page) {
-                const startIndex = (page - 1) * itemsPerPage;
-                const endIndex = Math.min(startIndex + itemsPerPage, suras.length);
-                const pageSuras = suras.slice(startIndex, endIndex);
+            // تحديث أزرار التحميل عند تغيير السورة
+            function updateDownloadLinks() {
+                const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
                 
-                suraButtonsContainer.innerHTML = '';
-                pageSuras.forEach(sura => {
-                    const button = document.createElement('button');
-                    button.className = 'sura-btn';
-                    if (sura.number === currentSura.number) {
-                        button.classList.add('active');
-                    }
-                    button.textContent = sura.number;
-                    button.dataset.suraNumber = sura.number;
-                    button.title = sura.name;
+                document.querySelectorAll('.download-btn').forEach((link, index) => {
+                    const reciter = reciters[index];
+                    const downloadUrl = `${reciter.baseUrl}/${suraNumberFormatted}.mp3`;
+                    const downloadFileName = `${currentSura.name}-${reciter.name}.mp3`;
                     
-                    button.addEventListener('click', () => {
-                        selectSura(sura.number);
-                    });
-                    
-                    suraButtonsContainer.appendChild(button);
+                    link.href = downloadUrl;
+                    link.download = downloadFileName;
                 });
             }
             
-            // تحديث مصدر الصوت بناءً على القارئ والسورة الحالية
+            // تحديث مصدر الصوت
             function updateAudioSource() {
                 // إظهار رسالة التحميل وإخفاء رسائل الخطأ
                 audioLoadingElement.style.display = 'block';
@@ -846,9 +788,6 @@
                 audioTestElement.style.display = 'none';
                 
                 // إنشاء رابط mp3quran.net
-                // التنسيق: https://server8.mp3quran.net/القارئ/رقم_السورة.mp3
-                // مثال: https://server8.mp3quran.net/afs/001.mp3
-                
                 const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
                 const audioUrl = `${currentReciter.baseUrl}/${suraNumberFormatted}.mp3`;
                 
@@ -889,13 +828,12 @@
                         </div>
                     `;
                     
-                    // محاولة التشغيل التلقائي (مع معالجة الأخطاء)
+                    // محاولة التشغيل التلقائي
                     const playPromise = audioPlayer.play();
                     
                     if (playPromise !== undefined) {
                         playPromise.catch(error => {
                             console.log("التشغيل التلقائي غير مدعوم. استخدم زر التشغيل.");
-                            // عرض رسالة للمستخدم
                             audioTestElement.innerHTML = '<i class="fas fa-info-circle"></i> اضغط على زر التشغيل (▶️) للاستماع';
                         });
                     }
@@ -914,6 +852,9 @@
                     
                     audioPlayer.removeEventListener('error', onError);
                 }, { once: true });
+                
+                // تحديث روابط التحميل
+                updateDownloadLinks();
             }
             
             // اختيار سورة
@@ -922,14 +863,6 @@
                 
                 // تحديث القائمة المنسدلة
                 suraSelect.value = suraNumber;
-                
-                // تحديث الأزرار النشطة في الصفحة الحالية
-                document.querySelectorAll('.sura-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (parseInt(btn.dataset.suraNumber) === suraNumber) {
-                        btn.classList.add('active');
-                    }
-                });
                 
                 // تحديث مصدر الصوت
                 updateAudioSource();
@@ -1013,12 +946,6 @@
                     
                     audioPlayer.currentTime = (clickX / width) * duration;
                 }
-            });
-            
-            // اختبار الصوت عند التحميل
-            audioPlayer.addEventListener('canplay', function() {
-                console.log('✅ الصوت يعمل بشكل صحيح');
-                audioTestElement.style.display = 'block';
             });
             
             // بدء التشغيل عند تحميل الصفحة
