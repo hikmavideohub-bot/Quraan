@@ -136,6 +136,15 @@
             outline: none;
         }
         
+        .sura-buttons-container {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
         .sura-buttons {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -343,6 +352,34 @@
             font-weight: 600;
         }
         
+        .loading {
+            color: #2c5f2d;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .page-btn {
+            padding: 8px 15px;
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .page-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -368,7 +405,7 @@
             <h1><i class="fas fa-quran"></i> مشغل القرآن الكريم</h1>
             <p class="subtitle">استمع إلى القرآن الكريم بأصوات أشهر القراء بدون إعلانات مزعجة</p>
             <div class="no-ads-badge">
-                <i class="fas fa-ad"></i> خالي من الإعلانات تمامًا
+                <i class="fas fa-ad"></i>
             </div>
         </header>
         
@@ -380,17 +417,17 @@
                     <div class="sura-selector">
                         <label for="sura-select"><i class="fas fa-list-ol"></i> اختر السورة:</label>
                         <select id="sura-select">
-                            <option value="1">الفاتحة</option>
-                            <option value="2">البقرة</option>
-                            <option value="36">يس</option>
-                            <option value="55">الرحمن</option>
-                            <option value="67">الملك</option>
-                            <option value="112">الإخلاص</option>
+                            <!-- سيتم ملؤها بواسطة JavaScript -->
                         </select>
                     </div>
                     
-                    <div class="sura-buttons" id="sura-buttons">
-                        <!-- سيتم ملؤها بواسطة JavaScript -->
+                    <div class="sura-buttons-container">
+                        <div class="pagination" id="sura-pagination">
+                            <!-- أزرار التصفح بين صفحات السور -->
+                        </div>
+                        <div class="sura-buttons" id="sura-buttons">
+                            <!-- سيتم ملؤها بواسطة JavaScript -->
+                        </div>
                     </div>
                     
                     <div class="audio-player">
@@ -426,6 +463,9 @@
                 <div class="current-playing" id="current-playing">
                     <div class="current-sura">الفاتحة</div>
                     <div class="current-reciter">مشاري راشد العفاسي</div>
+                    <div id="audio-loading" class="loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> جار تحميل الصوت...
+                    </div>
                 </div>
             </section>
             
@@ -439,7 +479,7 @@
                 
                 <div class="warning">
                     <i class="fas fa-exclamation-triangle"></i> 
-                    تنبيه: جميع التسجيلات المعروضة هي روابط مباشرة من مصادر موثوقة ولا تحتوي على إعلانات
+                    تنبيه: جميع التسجيلات المعروضة هي روابط مباشرة من everyayah.com الموثوقة ولا تحتوي على إعلانات
                 </div>
             </section>
         </div>
@@ -481,35 +521,174 @@
             // تعيين السنة الحالية في التذييل
             document.getElementById('current-year').textContent = new Date().getFullYear();
             
-            // بيانات القراء
+            // بيانات القراء مع روابط everyayah.com
             const reciters = [
-                { id: "mishari_alafasy", name: "مشاري راشد العفاسي", style: "حدر", active: true },
-                { id: "abdulbasit_abdulsamad", name: "عبد الباسط عبد الصمد", style: "ترتيل" },
-                { id: "mahmoud_khalil_alhussary", name: "محمود خليل الحصري", style: "ترتيل" },
-                { id: "saad_alghamdi", name: "سعد الغامدي", style: "ترتيل" },
-                { id: "yasser_aldosari", name: "ياسر الدوسري", style: "حدر" },
-                { id: "abdullah_basfar", name: "عبد الله بصفر", style: "ترتيل" },
-                { id: "hani_rifai", name: "هاني الرفاعي", style: "تجويد" },
-                { id: "abubakr_alshatri", name: "أبو بكر الشاطري", style: "ترتيل" }
+                { 
+                    id: "Mishari_al-Afasy_64kbps", 
+                    name: "مشاري راشد العفاسي", 
+                    style: "حدر",
+                    code: "Mishari_al-Afasy_64kbps"
+                },
+                { 
+                    id: "AbdulSamad_64kbps", 
+                    name: "عبد الباسط عبد الصمد", 
+                    style: "ترتيل",
+                    code: "AbdulSamad_64kbps"
+                },
+                { 
+                    id: "Husary_64kbps", 
+                    name: "محمود خليل الحصري", 
+                    style: "ترتيل",
+                    code: "Husary_64kbps"
+                },
+                { 
+                    id: "Ghamadi_64kbps", 
+                    name: "سعد الغامدي", 
+                    style: "ترتيل",
+                    code: "Ghamadi_64kbps"
+                },
+                { 
+                    id: "Minshawi_64kbps", 
+                    name: "محمد صديق المنشاوي", 
+                    style: "تجويد",
+                    code: "Minshawi_64kbps"
+                },
+                { 
+                    id: "Basfar_64kbps", 
+                    name: "عبد الله بصفر", 
+                    style: "ترتيل",
+                    code: "Basfar_64kbps"
+                },
+                { 
+                    id: "Rifai_64kbps", 
+                    name: "هاني الرفاعي", 
+                    style: "تجويد",
+                    code: "Rifai_64kbps"
+                },
+                { 
+                    id: "al-Ajamy_64kbps", 
+                    name: "أحمد العجمي", 
+                    style: "ترتيل",
+                    code: "al-Ajamy_64kbps"
+                }
             ];
             
-            // بيانات السور (بعض السور الشهيرة)
+            // بيانات جميع سور القرآن (114 سورة)
             const suras = [
-                { number: 1, name: "الفاتحة", verses: 7 },
-                { number: 2, name: "البقرة", verses: 286 },
-                { number: 36, name: "يس", verses: 83 },
-                { number: 55, name: "الرحمن", verses: 78 },
-                { number: 56, name: "الواقعة", verses: 96 },
-                { number: 67, name: "الملك", verses: 30 },
-                { number: 78, name: "النبأ", verses: 40 },
-                { number: 87, name: "الأعلى", verses: 19 },
-                { number: 93, name: "الضحى", verses: 11 },
-                { number: 94, name: "الشرح", verses: 8 },
-                { number: 97, name: "القدر", verses: 5 },
-                { number: 102, name: "التكاثر", verses: 8 },
-                { number: 112, name: "الإخلاص", verses: 4 },
-                { number: 113, name: "الفلق", verses: 5 },
-                { number: 114, name: "الناس", verses: 6 }
+                { number: 1, name: "الفاتحة", verses: 7, page: 1 },
+                { number: 2, name: "البقرة", verses: 286, page: 2 },
+                { number: 3, name: "آل عمران", verses: 200, page: 50 },
+                { number: 4, name: "النساء", verses: 176, page: 77 },
+                { number: 5, name: "المائدة", verses: 120, page: 106 },
+                { number: 6, name: "الأنعام", verses: 165, page: 128 },
+                { number: 7, name: "الأعراف", verses: 206, page: 151 },
+                { number: 8, name: "الأنفال", verses: 75, page: 177 },
+                { number: 9, name: "التوبة", verses: 129, page: 187 },
+                { number: 10, name: "يونس", verses: 109, page: 208 },
+                { number: 11, name: "هود", verses: 123, page: 221 },
+                { number: 12, name: "يوسف", verses: 111, page: 235 },
+                { number: 13, name: "الرعد", verses: 43, page: 249 },
+                { number: 14, name: "ابراهيم", verses: 52, page: 255 },
+                { number: 15, name: "الحجر", verses: 99, page: 262 },
+                { number: 16, name: "النحل", verses: 128, page: 267 },
+                { number: 17, name: "الإسراء", verses: 111, page: 282 },
+                { number: 18, name: "الكهف", verses: 110, page: 293 },
+                { number: 19, name: "مريم", verses: 98, page: 305 },
+                { number: 20, name: "طه", verses: 135, page: 312 },
+                { number: 21, name: "الأنبياء", verses: 112, page: 322 },
+                { number: 22, name: "الحج", verses: 78, page: 332 },
+                { number: 23, name: "المؤمنون", verses: 118, page: 342 },
+                { number: 24, name: "النور", verses: 64, page: 350 },
+                { number: 25, name: "الفرقان", verses: 77, page: 359 },
+                { number: 26, name: "الشعراء", verses: 227, page: 367 },
+                { number: 27, name: "النمل", verses: 93, page: 377 },
+                { number: 28, name: "القصص", verses: 88, page: 385 },
+                { number: 29, name: "العنكبوت", verses: 69, page: 396 },
+                { number: 30, name: "الروم", verses: 60, page: 404 },
+                { number: 31, name: "لقمان", verses: 34, page: 411 },
+                { number: 32, name: "السجدة", verses: 30, page: 415 },
+                { number: 33, name: "الأحزاب", verses: 73, page: 418 },
+                { number: 34, name: "سبإ", verses: 54, page: 428 },
+                { number: 35, name: "فاطر", verses: 45, page: 434 },
+                { number: 36, name: "يس", verses: 83, page: 440 },
+                { number: 37, name: "الصافات", verses: 182, page: 446 },
+                { number: 38, name: "ص", verses: 88, page: 453 },
+                { number: 39, name: "الزمر", verses: 75, page: 458 },
+                { number: 40, name: "غافر", verses: 85, page: 467 },
+                { number: 41, name: "فصلت", verses: 54, page: 477 },
+                { number: 42, name: "الشورى", verses: 53, page: 483 },
+                { number: 43, name: "الزخرف", verses: 89, page: 489 },
+                { number: 44, name: "الدخان", verses: 59, page: 496 },
+                { number: 45, name: "الجاثية", verses: 37, page: 499 },
+                { number: 46, name: "الأحقاف", verses: 35, page: 502 },
+                { number: 47, name: "محمد", verses: 38, page: 507 },
+                { number: 48, name: "الفتح", verses: 29, page: 511 },
+                { number: 49, name: "الحجرات", verses: 18, page: 515 },
+                { number: 50, name: "ق", verses: 45, page: 518 },
+                { number: 51, name: "الذاريات", verses: 60, page: 520 },
+                { number: 52, name: "الطور", verses: 49, page: 523 },
+                { number: 53, name: "النجم", verses: 62, page: 526 },
+                { number: 54, name: "القمر", verses: 55, page: 528 },
+                { number: 55, name: "الرحمن", verses: 78, page: 531 },
+                { number: 56, name: "الواقعة", verses: 96, page: 534 },
+                { number: 57, name: "الحديد", verses: 29, page: 537 },
+                { number: 58, name: "المجادلة", verses: 22, page: 542 },
+                { number: 59, name: "الحشر", verses: 24, page: 545 },
+                { number: 60, name: "الممتحنة", verses: 13, page: 549 },
+                { number: 61, name: "الصف", verses: 14, page: 551 },
+                { number: 62, name: "الجمعة", verses: 11, page: 553 },
+                { number: 63, name: "المنافقون", verses: 11, page: 554 },
+                { number: 64, name: "التغابن", verses: 18, page: 556 },
+                { number: 65, name: "الطلاق", verses: 12, page: 558 },
+                { number: 66, name: "التحريم", verses: 12, page: 560 },
+                { number: 67, name: "الملك", verses: 30, page: 562 },
+                { number: 68, name: "القلم", verses: 52, page: 564 },
+                { number: 69, name: "الحاقة", verses: 52, page: 566 },
+                { number: 70, name: "المعارج", verses: 44, page: 568 },
+                { number: 71, name: "نوح", verses: 28, page: 570 },
+                { number: 72, name: "الجن", verses: 28, page: 572 },
+                { number: 73, name: "المزمل", verses: 20, page: 574 },
+                { number: 74, name: "المدثر", verses: 56, page: 575 },
+                { number: 75, name: "القيامة", verses: 40, page: 577 },
+                { number: 76, name: "الانسان", verses: 31, page: 578 },
+                { number: 77, name: "المرسلات", verses: 50, page: 580 },
+                { number: 78, name: "النبأ", verses: 40, page: 582 },
+                { number: 79, name: "النازعات", verses: 46, page: 583 },
+                { number: 80, name: "عبس", verses: 42, page: 585 },
+                { number: 81, name: "التكوير", verses: 29, page: 586 },
+                { number: 82, name: "الانفطار", verses: 19, page: 587 },
+                { number: 83, name: "المطففين", verses: 36, page: 587 },
+                { number: 84, name: "الانشقاق", verses: 25, page: 589 },
+                { number: 85, name: "البروج", verses: 22, page: 590 },
+                { number: 86, name: "الطارق", verses: 17, page: 591 },
+                { number: 87, name: "الأعلى", verses: 19, page: 591 },
+                { number: 88, name: "الغاشية", verses: 26, page: 592 },
+                { number: 89, name: "الفجر", verses: 30, page: 593 },
+                { number: 90, name: "البلد", verses: 20, page: 594 },
+                { number: 91, name: "الشمس", verses: 15, page: 595 },
+                { number: 92, name: "الليل", verses: 21, page: 595 },
+                { number: 93, name: "الضحى", verses: 11, page: 596 },
+                { number: 94, name: "الشرح", verses: 8, page: 596 },
+                { number: 95, name: "التين", verses: 8, page: 597 },
+                { number: 96, name: "العلق", verses: 19, page: 597 },
+                { number: 97, name: "القدر", verses: 5, page: 598 },
+                { number: 98, name: "البينة", verses: 8, page: 598 },
+                { number: 99, name: "الزلزلة", verses: 8, page: 599 },
+                { number: 100, name: "العاديات", verses: 11, page: 599 },
+                { number: 101, name: "القارعة", verses: 11, page: 600 },
+                { number: 102, name: "التكاثر", verses: 8, page: 600 },
+                { number: 103, name: "العصر", verses: 3, page: 601 },
+                { number: 104, name: "الهمزة", verses: 9, page: 601 },
+                { number: 105, name: "الفيل", verses: 5, page: 601 },
+                { number: 106, name: "قريش", verses: 4, page: 602 },
+                { number: 107, name: "الماعون", verses: 7, page: 602 },
+                { number: 108, name: "الكوثر", verses: 3, page: 602 },
+                { number: 109, name: "الكافرون", verses: 6, page: 603 },
+                { number: 110, name: "النصر", verses: 3, page: 603 },
+                { number: 111, name: "المسد", verses: 5, page: 603 },
+                { number: 112, name: "الإخلاص", verses: 4, page: 604 },
+                { number: 113, name: "الفلق", verses: 5, page: 604 },
+                { number: 114, name: "الناس", verses: 6, page: 604 }
             ];
             
             // عناصر DOM
@@ -522,50 +701,42 @@
             const durationDisplay = document.getElementById('duration');
             const suraSelect = document.getElementById('sura-select');
             const suraButtonsContainer = document.getElementById('sura-buttons');
+            const suraPagination = document.getElementById('sura-pagination');
             const recitersGrid = document.getElementById('reciters-grid');
             const currentPlayingElement = document.getElementById('current-playing');
+            const audioLoadingElement = document.getElementById('audio-loading');
             
             // المتغيرات الحالية
             let currentReciter = reciters[0];
             let currentSura = suras[0];
+            let currentPage = 1;
+            const itemsPerPage = 20;
+            const totalPages = Math.ceil(suras.length / itemsPerPage);
             
             // تهيئة واجهة المستخدم
             function initializeUI() {
-                // إنشاء أزرار السور
-                suraButtonsContainer.innerHTML = '';
-                suras.forEach(sura => {
-                    const button = document.createElement('button');
-                    button.className = 'sura-btn';
-                    if (sura.number === currentSura.number) {
-                        button.classList.add('active');
-                    }
-                    button.textContent = sura.number;
-                    button.dataset.suraNumber = sura.number;
-                    button.title = sura.name;
-                    
-                    button.addEventListener('click', () => {
-                        selectSura(sura.number);
-                    });
-                    
-                    suraButtonsContainer.appendChild(button);
-                });
-                
                 // إنشاء خيارات السور في القائمة المنسدلة
                 suraSelect.innerHTML = '';
                 suras.forEach(sura => {
                     const option = document.createElement('option');
                     option.value = sura.number;
-                    option.textContent = `${sura.number}. ${sura.name}`;
+                    option.textContent = `${sura.number}. ${sura.name} (${sura.verses} آية)`;
                     suraSelect.appendChild(option);
                 });
                 suraSelect.value = currentSura.number;
+                
+                // إنشاء أزرار التصفح بين صفحات السور
+                createPaginationButtons();
+                
+                // عرض السور للصفحة الحالية
+                showSuraPage(currentPage);
                 
                 // إنشاء بطاقات القراء
                 recitersGrid.innerHTML = '';
                 reciters.forEach(reciter => {
                     const card = document.createElement('div');
                     card.className = 'reciter-card';
-                    if (reciter.active) {
+                    if (reciter.id === currentReciter.id) {
                         card.classList.add('active');
                     }
                     
@@ -588,54 +759,113 @@
                 updateAudioSource();
             }
             
+            // إنشاء أزرار التصفح بين صفحات السور
+            function createPaginationButtons() {
+                suraPagination.innerHTML = '';
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    const button = document.createElement('button');
+                    button.className = 'page-btn';
+                    if (i === currentPage) {
+                        button.classList.add('active');
+                    }
+                    button.textContent = i;
+                    button.dataset.page = i;
+                    
+                    button.addEventListener('click', () => {
+                        currentPage = i;
+                        showSuraPage(currentPage);
+                        updatePaginationButtons();
+                    });
+                    
+                    suraPagination.appendChild(button);
+                }
+            }
+            
+            // تحديث أزرار التصفح
+            function updatePaginationButtons() {
+                document.querySelectorAll('.page-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (parseInt(btn.dataset.page) === currentPage) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            // عرض السور للصفحة المحددة
+            function showSuraPage(page) {
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, suras.length);
+                const pageSuras = suras.slice(startIndex, endIndex);
+                
+                suraButtonsContainer.innerHTML = '';
+                pageSuras.forEach(sura => {
+                    const button = document.createElement('button');
+                    button.className = 'sura-btn';
+                    if (sura.number === currentSura.number) {
+                        button.classList.add('active');
+                    }
+                    button.textContent = sura.number;
+                    button.dataset.suraNumber = sura.number;
+                    button.title = `${sura.name} (${sura.verses} آية)`;
+                    
+                    button.addEventListener('click', () => {
+                        selectSura(sura.number);
+                    });
+                    
+                    suraButtonsContainer.appendChild(button);
+                });
+            }
+            
             // تحديث مصدر الصوت بناءً على القارئ والسورة الحالية
             function updateAudioSource() {
-                // في بيئة حقيقية، سيكون هنا رابط لملف صوتي حقيقي
-                // لأغراض العرض، سنستخدم ملفات صوتية وهمية
+                // إظهار رسالة التحميل
+                audioLoadingElement.style.display = 'block';
                 
-                // في التطبيق الحقيقي، يمكن استخدام:
-                // `https://server7.mp3quran.net/${currentReciter.id}/${currentSura.number}.mp3`
-                // أو مصادر أخرى حسب توفر التسجيلات
+                // إنشاء رابط everyayah.com
+                // التنسيق: https://everyayah.com/data/القارئ/رقم_السورة_بثلاثة_أرقام.mp3
+                // مثال: https://everyayah.com/data/Mishari_al-Afasy_64kbps/001.mp3
                 
-                // لأغراض العرض، سنقوم بتغيير النص فقط
+                const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
+                const audioUrl = `https://everyayah.com/data/${currentReciter.code}/${suraNumberFormatted}.mp3`;
+                
+                console.log(`جار تحميل الصوت من: ${audioUrl}`);
+                
+                // تحديث رابط الصوت
+                audioPlayer.src = audioUrl;
+                
+                // تحديث عرض المعلومات الحالية
                 currentPlayingElement.innerHTML = `
-                    <div class="current-sura">${currentSura.name}</div>
+                    <div class="current-sura">${currentSura.number}. ${currentSura.name}</div>
                     <div class="current-reciter">${currentReciter.name}</div>
-                    <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
-                        <i class="fas fa-music"></i> جار تحميل الصوت...
+                    <div id="audio-loading" class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> جار تحميل الصوت...
                     </div>
                 `;
                 
-                // في التطبيق الحقيقي، يمكن فك التعليق عن السطور التالية:
-                // const audioUrl = `https://server7.mp3quran.net/${currentReciter.id}/${currentSura.number}.mp3`;
-                // audioPlayer.src = audioUrl;
+                // محاولة تحميل الصوت
+                audioPlayer.load();
                 
-                // لأغراض العرض، سنقوم بمحاكاة تحميل الصوت
-                setTimeout(() => {
-                    currentPlayingElement.innerHTML = `
-                        <div class="current-sura">${currentSura.name}</div>
-                        <div class="current-reciter">${currentReciter.name}</div>
-                        <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
-                            <i class="fas fa-check-circle"></i> جاهز للاستماع
-                        </div>
-                    `;
-                }, 800);
+                // إعادة تعيين شريط التقدم
+                progressBar.style.width = '0%';
+                currentTimeDisplay.textContent = '0:00';
+                durationDisplay.textContent = '0:00';
             }
             
             // اختيار سورة
             function selectSura(suraNumber) {
                 currentSura = suras.find(s => s.number === suraNumber);
                 
-                // تحديث الأزرار النشطة
+                // تحديث القائمة المنسدلة
+                suraSelect.value = suraNumber;
+                
+                // تحديث الأزرار النشطة في الصفحة الحالية
                 document.querySelectorAll('.sura-btn').forEach(btn => {
                     btn.classList.remove('active');
                     if (parseInt(btn.dataset.suraNumber) === suraNumber) {
                         btn.classList.add('active');
                     }
                 });
-                
-                // تحديث القائمة المنسدلة
-                suraSelect.value = suraNumber;
                 
                 // تحديث مصدر الصوت
                 updateAudioSource();
@@ -699,6 +929,47 @@
                 currentTimeDisplay.textContent = '0:00';
             });
             
+            // عند بدء تحميل الصوت
+            audioPlayer.addEventListener('loadstart', function() {
+                console.log('بدأ تحميل الصوت...');
+            });
+            
+            // عند توفر بيانات الصوت
+            audioPlayer.addEventListener('loadeddata', function() {
+                console.log('تم تحميل بيانات الصوت');
+                audioLoadingElement.style.display = 'none';
+            });
+            
+            // عند إمكانية التشغيل
+            audioPlayer.addEventListener('canplay', function() {
+                console.log('الصوت جاهز للتشغيل');
+                audioLoadingElement.style.display = 'none';
+                
+                // تحديث عرض المعلومات الحالية
+                currentPlayingElement.innerHTML = `
+                    <div class="current-sura">${currentSura.number}. ${currentSura.name}</div>
+                    <div class="current-reciter">${currentReciter.name}</div>
+                    <div style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
+                        <i class="fas fa-check-circle"></i> جاهز للاستماع
+                    </div>
+                `;
+            });
+            
+            // عند حدوث خطأ
+            audioPlayer.addEventListener('error', function(e) {
+                console.error('حدث خطأ في تحميل الصوت:', e);
+                audioLoadingElement.style.display = 'none';
+                
+                // تحديث عرض المعلومات الحالية مع رسالة خطأ
+                currentPlayingElement.innerHTML = `
+                    <div class="current-sura">${currentSura.number}. ${currentSura.name}</div>
+                    <div class="current-reciter">${currentReciter.name}</div>
+                    <div class="warning" style="margin-top: 10px; font-size: 0.9rem;">
+                        <i class="fas fa-exclamation-triangle"></i> تعذر تحميل الصوت. جرب قارئًا آخر.
+                    </div>
+                `;
+            });
+            
             audioPlayer.addEventListener('timeupdate', updateProgress);
             
             audioPlayer.addEventListener('loadedmetadata', function() {
@@ -712,7 +983,9 @@
                 const clickX = e.offsetX;
                 const duration = audioPlayer.duration;
                 
-                audioPlayer.currentTime = (clickX / width) * duration;
+                if (duration) {
+                    audioPlayer.currentTime = (clickX / width) * duration;
+                }
             });
             
             // بدء التشغيل عند تحميل الصفحة
