@@ -464,7 +464,7 @@
                 
                 <div class="source-info">
                     <i class="fas fa-info-circle"></i> 
-                    جميع الأصوات تعمل الآن من مصادر موثوقة ومختلفة
+                    جميع الأصوات تعمل من موقع mp3quran.net الموثوق
                 </div>
             </section>
             
@@ -478,7 +478,7 @@
                 
                 <div class="warning">
                     <i class="fas fa-exclamation-triangle"></i> 
-                    ملاحظة: بعض الأصوات قد تتأخر قليلاً في التحميل لأول مرة
+                    ملاحظة: قد يتأخر تحميل الصوت لأول مرة قليلاً، يرجى الانتظار
                 </div>
             </section>
         </div>
@@ -523,49 +523,44 @@
             // تعيين السنة الحالية في التذييل
             document.getElementById('current-year').textContent = new Date().getFullYear();
             
-            // بيانات القراء مع مصادر موثوقة تعمل جميعها
+            // بيانات القراء من mp3quran.net
             const reciters = [
                 { 
-                    id: "husary", 
+                    id: "husr", 
                     name: "محمود خليل الحصري", 
                     style: "ترتيل",
-                    // مصدر بديل يعمل
-                    getUrl: (suraNum) => `https://server8.mp3quran.net/husr/${suraNum.toString().padStart(3, '0')}.mp3`
+                    // نموذج الرابط: https://mp3quran.net/ar/husr/1
+                    getUrl: (suraNum) => `https://mp3quran.net/ar/husr/${suraNum}`
                 },
                 { 
-                    id: "mishari", 
+                    id: "afs", 
                     name: "مشاري راشد العفاسي", 
                     style: "حدر",
-                    // مصدر يعمل
-                    getUrl: (suraNum) => `https://server8.mp3quran.net/afs/${suraNum.toString().padStart(3, '0')}.mp3`
+                    getUrl: (suraNum) => `https://mp3quran.net/ar/afs/${suraNum}`
                 },
                 { 
                     id: "abdulbasit", 
                     name: "عبد الباسط عبد الصمد", 
                     style: "ترتيل",
-                    // مصدر مختلف يعمل
-                    getUrl: (suraNum) => `https://everyayah.com/data/AbdulBaset_AbdulSamad_64kbps/${suraNum.toString().padStart(3, '0')}.mp3`
+                    getUrl: (suraNum) => `https://mp3quran.net/ar/abdulbasit/${suraNum}`
                 },
                 { 
                     id: "saad", 
                     name: "سعد الغامدي", 
                     style: "ترتيل",
-                    // مصدر يعمل
-                    getUrl: (suraNum) => `https://server8.mp3quran.net/saood/${suraNum.toString().padStart(3, '0')}.mp3`
+                    getUrl: (suraNum) => `https://mp3quran.net/ar/saad/${suraNum}`
                 },
                 { 
                     id: "minshawi", 
                     name: "محمد صديق المنشاوي", 
                     style: "تجويد",
-                    // مصدر يعمل
-                    getUrl: (suraNum) => `https://server8.mp3quran.net/minsh/${suraNum.toString().padStart(3, '0')}.mp3`
+                    getUrl: (suraNum) => `https://mp3quran.net/ar/minshawi/${suraNum}`
                 },
                 { 
                     id: "basfar", 
                     name: "عبد الله بصفر", 
                     style: "ترتيل",
-                    // مصدر يعمل
-                    getUrl: (suraNum) => `https://server8.mp3quran.net/basfar/${suraNum.toString().padStart(3, '0')}.mp3`
+                    getUrl: (suraNum) => `https://mp3quran.net/ar/basfar/${suraNum}`
                 }
             ];
             
@@ -758,17 +753,76 @@
                 });
             }
             
+            // استخراج رابط MP3 من صفحة mp3quran.net
+            async function getMp3Url(pageUrl) {
+                try {
+                    // إنشاء رابط وهمي للتحميل
+                    // في الواقع، نستخدم رابط مباشر لملف mp3 من خلال نمط معروف
+                    // النمط: https://server8.mp3quran.net/{reciter_code}/{sura_number_padded}.mp3
+                    
+                    const reciterCode = currentReciter.id;
+                    const suraNumPadded = currentSura.number.toString().padStart(3, '0');
+                    
+                    // إنشاء رابطين بديلين لزيادة فرص العمل
+                    const alternativeUrl1 = `https://server8.mp3quran.net/${reciterCode}/${suraNumPadded}.mp3`;
+                    const alternativeUrl2 = `https://server7.mp3quran.net/${reciterCode}/${suraNumPadded}.mp3`;
+                    
+                    // اختبار الرابط الأول
+                    try {
+                        const test = await testUrl(alternativeUrl1);
+                        if (test) return alternativeUrl1;
+                    } catch(e) {
+                        console.log("الرابط الأول لم يعمل، جاري تجربة الرابط الثاني");
+                    }
+                    
+                    // إذا لم يعمل الأول، جرب الثاني
+                    const test2 = await testUrl(alternativeUrl2);
+                    if (test2) return alternativeUrl2;
+                    
+                    // إذا لم يعمل أي منهما، نستخدم الرابط الأصلي
+                    return pageUrl;
+                    
+                } catch (error) {
+                    console.error('خطأ في استخراج رابط MP3:', error);
+                    return pageUrl;
+                }
+            }
+            
+            // اختبار ما إذا كان الرابط يعمل
+            function testUrl(url) {
+                return new Promise((resolve) => {
+                    const audio = new Audio();
+                    audio.src = url;
+                    
+                    audio.addEventListener('canplay', () => {
+                        resolve(true);
+                    });
+                    
+                    audio.addEventListener('error', () => {
+                        resolve(false);
+                    });
+                    
+                    // مهلة
+                    setTimeout(() => {
+                        resolve(false);
+                    }, 3000);
+                });
+            }
+            
             // تحميل وتشغيل الصوت
-            function updateAudioSource() {
+            async function updateAudioSource() {
                 // إظهار رسالة التحميل وإخفاء رسائل الخطأ
                 audioLoadingElement.style.display = 'block';
                 audioErrorElement.style.display = 'none';
                 audioTestElement.style.display = 'none';
                 
-                // الحصول على رابط الصوت
-                audioUrl = currentReciter.getUrl(currentSura.number);
+                // الحصول على رابط صفحة mp3quran
+                const pageUrl = currentReciter.getUrl(currentSura.number);
+                console.log(`رابط الصفحة: ${pageUrl}`);
                 
-                console.log(`جار تحميل الصوت من: ${audioUrl}`);
+                // محاولة الحصول على رابط MP3 مباشر
+                audioUrl = await getMp3Url(pageUrl);
+                console.log(`رابط MP3: ${audioUrl}`);
                 
                 // تحديث عرض المعلومات الحالية
                 currentPlayingElement.innerHTML = `
