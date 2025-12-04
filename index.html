@@ -206,6 +206,7 @@
             border-radius: 4px;
             overflow: hidden;
             margin-bottom: 5px;
+            cursor: pointer;
         }
         
         .progress {
@@ -262,7 +263,48 @@
         .reciter-style {
             color: #666;
             font-size: 0.9rem;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .reciter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .select-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .select-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .download-btn {
+            background-color: #f0f0f0;
+            color: var(--text-color);
+            border: 1px solid #ddd;
+        }
+        
+        .download-btn:hover {
+            background-color: #e0e0e0;
         }
         
         .current-playing {
@@ -335,7 +377,7 @@
         }
         
         .loading {
-            color: #2c5f2d;
+            color: #fff;
             text-align: center;
             padding: 20px;
             font-size: 1.1rem;
@@ -348,16 +390,6 @@
             border-radius: 5px;
             margin-top: 10px;
             text-align: center;
-        }
-        
-        .source-info {
-            background-color: #e3f2fd;
-            color: #1565c0;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.9rem;
         }
         
         @media (max-width: 768px) {
@@ -389,6 +421,10 @@
             .download-manual-btn {
                 width: 100%;
                 justify-content: center;
+            }
+            
+            .reciter-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -453,7 +489,7 @@
                 
                 <div class="current-playing" id="current-playing">
                     <div class="current-sura">الفاتحة</div>
-                    <div class="current-reciter">محمود خليل الحصري</div>
+                    <div class="current-reciter">مشاري راشد العفاسي</div>
                     <div id="audio-loading" class="loading" style="display: none;">
                         <i class="fas fa-spinner fa-spin"></i> جار تحميل الصوت...
                     </div>
@@ -461,16 +497,11 @@
                         <i class="fas fa-exclamation-triangle"></i> تعذر تحميل الصوت. جرب قارئًا آخر.
                     </div>
                 </div>
-                
-                <div class="source-info">
-                    <i class="fas fa-info-circle"></i> 
-                    جميع الأصوات تعمل من موقع mp3quran.net الموثوق
-                </div>
             </section>
             
             <section class="reciters-section">
                 <h2 class="section-title"><i class="fas fa-microphone-alt"></i> اختر القارئ</h2>
-                <p style="margin-bottom: 20px; color: #666;">اختر من بين أشهر القراء - سيتم تشغيل الصوت تلقائياً عند الاختيار</p>
+                <p style="margin-bottom: 20px; color: #666;">اختر من بين أشهر القراء أو حمل السورة بصوت القارئ المفضل لديك</p>
                 
                 <div class="reciters-grid" id="reciters-grid">
                     <!-- سيتم ملؤها بواسطة JavaScript -->
@@ -523,163 +554,49 @@
             // تعيين السنة الحالية في التذييل
             document.getElementById('current-year').textContent = new Date().getFullYear();
             
-            // بيانات القراء من mp3quran.net
+            // بيانات القراء مع مصادر موثوقة
             const reciters = [
                 { 
-                    id: "husr", 
-                    name: "محمود خليل الحصري", 
-                    style: "ترتيل",
-                    // نموذج الرابط: https://mp3quran.net/ar/husr/1
-                    getUrl: (suraNum) => `https://mp3quran.net/ar/husr/${suraNum}`
-                },
-                { 
-                    id: "afs", 
+                    id: "mishari", 
                     name: "مشاري راشد العفاسي", 
                     style: "حدر",
-                    getUrl: (suraNum) => `https://mp3quran.net/ar/afs/${suraNum}`
+                    baseUrl: "https://server8.mp3quran.net/afs"
                 },
                 { 
                     id: "abdulbasit", 
                     name: "عبد الباسط عبد الصمد", 
                     style: "ترتيل",
-                    getUrl: (suraNum) => `https://mp3quran.net/ar/abdulbasit/${suraNum}`
+                    baseUrl: "https://server7.mp3quran.net/basit"
+                },
+                { 
+                    id: "husary", 
+                    name: "محمود خليل الحصري", 
+                    style: "ترتيل",
+                    baseUrl: "https://server13.mp3quran.net/husr"
                 },
                 { 
                     id: "saad", 
                     name: "سعد الغامدي", 
                     style: "ترتيل",
-                    getUrl: (suraNum) => `https://mp3quran.net/ar/saad/${suraNum}`
+                    baseUrl: "https://server7.mp3quran.net/s_gmd"
                 },
                 { 
                     id: "minshawi", 
                     name: "محمد صديق المنشاوي", 
                     style: "تجويد",
-                    getUrl: (suraNum) => `https://mp3quran.net/ar/minshawi/${suraNum}`
+                    baseUrl: "https://server10.mp3quran.net/minsh"
                 },
                 { 
                     id: "basfar", 
                     name: "عبد الله بصفر", 
                     style: "ترتيل",
-                    getUrl: (suraNum) => `https://mp3quran.net/ar/basfar/${suraNum}`
+                    baseUrl: "https://server6.mp3quran.net/bsfr"
                 }
             ];
             
             // بيانات جميع سور القرآن (114 سورة)
             const suras = [
-                { number: 1, name: "الفاتحة" },
-                { number: 2, name: "البقرة" },
-                { number: 3, name: "آل عمران" },
-                { number: 4, name: "النساء" },
-                { number: 5, name: "المائدة" },
-                { number: 6, name: "الأنعام" },
-                { number: 7, name: "الأعراف" },
-                { number: 8, name: "الأنفال" },
-                { number: 9, name: "التوبة" },
-                { number: 10, name: "يونس" },
-                { number: 11, name: "هود" },
-                { number: 12, name: "يوسف" },
-                { number: 13, name: "الرعد" },
-                { number: 14, name: "إبراهيم" },
-                { number: 15, name: "الحجر" },
-                { number: 16, name: "النحل" },
-                { number: 17, name: "الإسراء" },
-                { number: 18, name: "الكهف" },
-                { number: 19, name: "مريم" },
-                { number: 20, name: "طه" },
-                { number: 21, name: "الأنبياء" },
-                { number: 22, name: "الحج" },
-                { number: 23, name: "المؤمنون" },
-                { number: 24, name: "النور" },
-                { number: 25, name: "الفرقان" },
-                { number: 26, name: "الشعراء" },
-                { number: 27, name: "النمل" },
-                { number: 28, name: "القصص" },
-                { number: 29, name: "العنكبوت" },
-                { number: 30, name: "الروم" },
-                { number: 31, name: "لقمان" },
-                { number: 32, name: "السجدة" },
-                { number: 33, name: "الأحزاب" },
-                { number: 34, name: "سبأ" },
-                { number: 35, name: "فاطر" },
-                { number: 36, name: "يس" },
-                { number: 37, name: "الصافات" },
-                { number: 38, name: "ص" },
-                { number: 39, name: "الزمر" },
-                { number: 40, name: "غافر" },
-                { number: 41, name: "فصلت" },
-                { number: 42, name: "الشورى" },
-                { number: 43, name: "الزخرف" },
-                { number: 44, name: "الدخان" },
-                { number: 45, name: "الجاثية" },
-                { number: 46, name: "الأحقاف" },
-                { number: 47, name: "محمد" },
-                { number: 48, name: "الفتح" },
-                { number: 49, name: "الحجرات" },
-                { number: 50, name: "ق" },
-                { number: 51, name: "الذاريات" },
-                { number: 52, name: "الطور" },
-                { number: 53, name: "النجم" },
-                { number: 54, name: "القمر" },
-                { number: 55, name: "الرحمن" },
-                { number: 56, name: "الواقعة" },
-                { number: 57, name: "الحديد" },
-                { number: 58, name: "المجادلة" },
-                { number: 59, name: "الحشر" },
-                { number: 60, name: "الممتحنة" },
-                { number: 61, name: "الصف" },
-                { number: 62, name: "الجمعة" },
-                { number: 63, name: "المنافقون" },
-                { number: 64, name: "التغابن" },
-                { number: 65, name: "الطلاق" },
-                { number: 66, name: "التحريم" },
-                { number: 67, name: "الملك" },
-                { number: 68, name: "القلم" },
-                { number: 69, name: "الحاقة" },
-                { number: 70, name: "المعارج" },
-                { number: 71, name: "نوح" },
-                { number: 72, name: "الجن" },
-                { number: 73, name: "المزمل" },
-                { number: 74, name: "المدثر" },
-                { number: 75, name: "القيامة" },
-                { number: 76, name: "الإنسان" },
-                { number: 77, name: "المرسلات" },
-                { number: 78, name: "النبأ" },
-                { number: 79, name: "النازعات" },
-                { number: 80, name: "عبس" },
-                { number: 81, name: "التكوير" },
-                { number: 82, name: "الانفطار" },
-                { number: 83, name: "المطففين" },
-                { number: 84, name: "الانشقاق" },
-                { number: 85, name: "البروج" },
-                { number: 86, name: "الطارق" },
-                { number: 87, name: "الأعلى" },
-                { number: 88, name: "الغاشية" },
-                { number: 89, name: "الفجر" },
-                { number: 90, name: "البلد" },
-                { number: 91, name: "الشمس" },
-                { number: 92, name: "الليل" },
-                { number: 93, name: "الضحى" },
-                { number: 94, name: "الشرح" },
-                { number: 95, name: "التين" },
-                { number: 96, name: "العلق" },
-                { number: 97, name: "القدر" },
-                { number: 98, name: "البينة" },
-                { number: 99, name: "الزلزلة" },
-                { number: 100, name: "العاديات" },
-                { number: 101, name: "القارعة" },
-                { number: 102, name: "التكاثر" },
-                { number: 103, name: "العصر" },
-                { number: 104, name: "الهمزة" },
-                { number: 105, name: "الفيل" },
-                { number: 106, name: "قريش" },
-                { number: 107, name: "الماعون" },
-                { number: 108, name: "الكوثر" },
-                { number: 109, name: "الكافرون" },
-                { number: 110, name: "النصر" },
-                { number: 111, name: "المسد" },
-                { number: 112, name: "الإخلاص" },
-                { number: 113, name: "الفلق" },
-                { number: 114, name: "الناس" }
+                { number: 1, name: "الفاتحة" }, { number: 2, name: "البقرة" }, { number: 3, name: "آل عمران" }, { number: 4, name: "النساء" }, { number: 5, name: "المائدة" }, { number: 6, name: "الأنعام" }, { number: 7, name: "الأعراف" }, { number: 8, name: "الأنفال" }, { number: 9, name: "التوبة" }, { number: 10, name: "يونس" }, { number: 11, name: "هود" }, { number: 12, name: "يوسف" }, { number: 13, name: "الرعد" }, { number: 14, name: "إبراهيم" }, { number: 15, name: "الحجر" }, { number: 16, name: "النحل" }, { number: 17, name: "الإسراء" }, { number: 18, name: "الكهف" }, { number: 19, name: "مريم" }, { number: 20, name: "طه" }, { number: 21, name: "الأنبياء" }, { number: 22, name: "الحج" }, { number: 23, name: "المؤمنون" }, { number: 24, name: "النور" }, { number: 25, name: "الفرقان" }, { number: 26, name: "الشعراء" }, { number: 27, name: "النمل" }, { number: 28, name: "القصص" }, { number: 29, name: "العنكبوت" }, { number: 30, name: "الروم" }, { number: 31, name: "لقمان" }, { number: 32, name: "السجدة" }, { number: 33, name: "الأحزاب" }, { number: 34, name: "سبأ" }, { number: 35, name: "فاطر" }, { number: 36, name: "يس" }, { number: 37, name: "الصافات" }, { number: 38, name: "ص" }, { number: 39, name: "الزمر" }, { number: 40, name: "غافر" }, { number: 41, name: "فصلت" }, { number: 42, name: "الشورى" }, { number: 43, name: "الزخرف" }, { number: 44, name: "الدخان" }, { number: 45, name: "الجاثية" }, { number: 46, name: "الأحقاف" }, { number: 47, name: "محمد" }, { number: 48, name: "الفتح" }, { number: 49, name: "الحجرات" }, { number: 50, name: "ق" }, { number: 51, name: "الذاريات" }, { number: 52, name: "الطور" }, { number: 53, name: "النجم" }, { number: 54, name: "القمر" }, { number: 55, name: "الرحمن" }, { number: 56, name: "الواقعة" }, { number: 57, name: "الحديد" }, { number: 58, name: "المجادلة" }, { number: 59, name: "الحشر" }, { number: 60, name: "الممتحنة" }, { number: 61, name: "الصف" }, { number: 62, name: "الجمعة" }, { number: 63, name: "المنافقون" }, { number: 64, name: "التغابن" }, { number: 65, name: "الطلاق" }, { number: 66, name: "التحريم" }, { number: 67, name: "الملك" }, { number: 68, name: "القلم" }, { number: 69, name: "الحاقة" }, { number: 70, name: "المعارج" }, { number: 71, name: "نوح" }, { number: 72, name: "الجن" }, { number: 73, name: "المزمل" }, { number: 74, name: "المدثر" }, { number: 75, name: "القيامة" }, { number: 76, name: "الإنسان" }, { number: 77, name: "المرسلات" }, { number: 78, name: "النبأ" }, { number: 79, name: "النازعات" }, { number: 80, name: "عبس" }, { number: 81, name: "التكوير" }, { number: 82, name: "الانفطار" }, { number: 83, name: "المطففين" }, { number: 84, name: "الانشقاق" }, { number: 85, name: "البروج" }, { number: 86, name: "الطارق" }, { number: 87, name: "الأعلى" }, { number: 88, name: "الغاشية" }, { number: 89, name: "الفجر" }, { number: 90, name: "البلد" }, { number: 91, name: "الشمس" }, { number: 92, name: "الليل" }, { number: 93, name: "الضحى" }, { number: 94, name: "الشرح" }, { number: 95, name: "التين" }, { number: 96, name: "العلق" }, { number: 97, name: "القدر" }, { number: 98, name: "البينة" }, { number: 99, name: "الزلزلة" }, { number: 100, name: "العاديات" }, { number: 101, name: "القارعة" }, { number: 102, name: "التكاثر" }, { number: 103, name: "العصر" }, { number: 104, name: "الهمزة" }, { number: 105, name: "الفيل" }, { number: 106, name: "قريش" }, { number: 107, name: "الماعون" }, { number: 108, name: "الكوثر" }, { number: 109, name: "الكافرون" }, { number: 110, name: "النصر" }, { number: 111, name: "المسد" }, { number: 112, name: "الإخلاص" }, { number: 113, name: "الفلق" }, { number: 114, name: "الناس" }
             ];
             
             // عناصر DOM
@@ -699,7 +616,7 @@
             const audioTestElement = document.getElementById('audio-test');
             
             // المتغيرات الحالية
-            let currentReciter = reciters[0]; // محمود خليل الحصري
+            let currentReciter = reciters[0];
             let currentSura = suras[0];
             let audioUrl = '';
             
@@ -722,11 +639,11 @@
                 // إنشاء بطاقات القراء
                 createReciterCards();
                 
-                // تحديث المصدر الصوتي الأول
-                updateAudioSource();
+                // تحديث المصدر الصوتي الأول (بدون تشغيل تلقائي لتجنب أخطاء المتصفح)
+                updateAudioSource(false);
             }
             
-            // إنشاء بطاقات القراء
+            // إنشاء بطاقات القراء مع أزرار التحميل
             function createReciterCards() {
                 recitersGrid.innerHTML = '';
                 
@@ -737,92 +654,64 @@
                         card.classList.add('active');
                     }
                     
+                    // إنشاء رابط التحميل للسورة الحالية
+                    const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
+                    const downloadUrl = `${reciter.baseUrl}/${suraNumberFormatted}.mp3`;
+                    const downloadFileName = `${currentSura.name}-${reciter.name}.mp3`;
+                    
                     card.innerHTML = `
                         <div class="reciter-name">
                             <span>${reciter.name}</span>
                             ${reciter.id === currentReciter.id ? '<span style="font-size:0.8rem; color: var(--secondary-color);"><i class="fas fa-check-circle"></i> قيد التشغيل</span>' : ''}
                         </div>
                         <div class="reciter-style">${reciter.style}</div>
+                        <div class="reciter-actions">
+                            <button class="action-btn select-btn" data-reciter="${reciter.id}">
+                                <i class="fas fa-play-circle"></i> تشغيل
+                            </button>
+                            <a href="${downloadUrl}" download="${downloadFileName}" class="action-btn download-btn">
+                                <i class="fas fa-download"></i> تحميل
+                            </a>
+                        </div>
                     `;
-                    
-                    card.addEventListener('click', () => {
-                        selectReciter(reciter.id);
-                    });
                     
                     recitersGrid.appendChild(card);
                 });
-            }
-            
-            // استخراج رابط MP3 من صفحة mp3quran.net
-            async function getMp3Url(pageUrl) {
-                try {
-                    // إنشاء رابط وهمي للتحميل
-                    // في الواقع، نستخدم رابط مباشر لملف mp3 من خلال نمط معروف
-                    // النمط: https://server8.mp3quran.net/{reciter_code}/{sura_number_padded}.mp3
-                    
-                    const reciterCode = currentReciter.id;
-                    const suraNumPadded = currentSura.number.toString().padStart(3, '0');
-                    
-                    // إنشاء رابطين بديلين لزيادة فرص العمل
-                    const alternativeUrl1 = `https://server8.mp3quran.net/${reciterCode}/${suraNumPadded}.mp3`;
-                    const alternativeUrl2 = `https://server7.mp3quran.net/${reciterCode}/${suraNumPadded}.mp3`;
-                    
-                    // اختبار الرابط الأول
-                    try {
-                        const test = await testUrl(alternativeUrl1);
-                        if (test) return alternativeUrl1;
-                    } catch(e) {
-                        console.log("الرابط الأول لم يعمل، جاري تجربة الرابط الثاني");
-                    }
-                    
-                    // إذا لم يعمل الأول، جرب الثاني
-                    const test2 = await testUrl(alternativeUrl2);
-                    if (test2) return alternativeUrl2;
-                    
-                    // إذا لم يعمل أي منهما، نستخدم الرابط الأصلي
-                    return pageUrl;
-                    
-                } catch (error) {
-                    console.error('خطأ في استخراج رابط MP3:', error);
-                    return pageUrl;
-                }
-            }
-            
-            // اختبار ما إذا كان الرابط يعمل
-            function testUrl(url) {
-                return new Promise((resolve) => {
-                    const audio = new Audio();
-                    audio.src = url;
-                    
-                    audio.addEventListener('canplay', () => {
-                        resolve(true);
+                
+                // إضافة حدث النقر لأزرار التشغيل
+                document.querySelectorAll('.select-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const reciterId = this.getAttribute('data-reciter');
+                        selectReciter(reciterId);
                     });
-                    
-                    audio.addEventListener('error', () => {
-                        resolve(false);
-                    });
-                    
-                    // مهلة
-                    setTimeout(() => {
-                        resolve(false);
-                    }, 3000);
                 });
             }
             
-            // تحميل وتشغيل الصوت
-            async function updateAudioSource() {
+            // تحديث أزرار التحميل عند تغيير السورة
+            function updateDownloadLinks() {
+                const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
+                
+                document.querySelectorAll('.download-btn').forEach((link, index) => {
+                    const reciter = reciters[index];
+                    const downloadUrl = `${reciter.baseUrl}/${suraNumberFormatted}.mp3`;
+                    const downloadFileName = `${currentSura.name}-${reciter.name}.mp3`;
+                    
+                    link.href = downloadUrl;
+                    link.download = downloadFileName;
+                });
+            }
+            
+            // تحديث مصدر الصوت بناءً على القارئ والسورة الحالية
+            function updateAudioSource(shouldPlay = true) {
                 // إظهار رسالة التحميل وإخفاء رسائل الخطأ
                 audioLoadingElement.style.display = 'block';
                 audioErrorElement.style.display = 'none';
                 audioTestElement.style.display = 'none';
                 
-                // الحصول على رابط صفحة mp3quran
-                const pageUrl = currentReciter.getUrl(currentSura.number);
-                console.log(`رابط الصفحة: ${pageUrl}`);
+                const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
+                audioUrl = `${currentReciter.baseUrl}/${suraNumberFormatted}.mp3`;
                 
-                // محاولة الحصول على رابط MP3 مباشر
-                audioUrl = await getMp3Url(pageUrl);
-                console.log(`رابط MP3: ${audioUrl}`);
+                console.log(`جار تحميل الصوت من: ${audioUrl}`);
                 
                 // تحديث عرض المعلومات الحالية
                 currentPlayingElement.innerHTML = `
@@ -859,13 +748,15 @@
                         </div>
                     `;
                     
-                    // محاولة التشغيل التلقائي
-                    setTimeout(() => {
-                        audioPlayer.play().catch(error => {
-                            console.log("التشغيل التلقائي غير مدعوم. استخدم زر التشغيل.");
-                            audioTestElement.innerHTML = '<i class="fas fa-info-circle"></i> اضغط على زر التشغيل (▶️) للاستماع';
-                        });
-                    }, 500);
+                    if (shouldPlay) {
+                        const playPromise = audioPlayer.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => {
+                                console.log("التشغيل التلقائي غير مدعوم. استخدم زر التشغيل.");
+                                audioTestElement.innerHTML = '<i class="fas fa-info-circle"></i> اضغط على زر التشغيل (▶️) للاستماع';
+                            });
+                        }
+                    }
                     
                     audioPlayer.removeEventListener('canplay', onCanPlay);
                 }, { once: true });
@@ -875,15 +766,17 @@
                     console.error('حدث خطأ في تحميل الصوت:', e);
                     audioLoadingElement.style.display = 'none';
                     
-                    // عرض رسالة الخطأ
                     audioErrorElement.style.display = 'block';
                     audioTestElement.style.display = 'none';
                     
                     audioPlayer.removeEventListener('error', onError);
                 }, { once: true });
+                
+                // تحديث روابط التحميل
+                updateDownloadLinks();
             }
             
-            // تحميل الصوت يدوياً
+            // تحميل الصوت يدوياً من الزر الرئيسي
             function downloadAudio() {
                 if (!audioUrl) return;
                 
@@ -903,7 +796,7 @@
                 suraSelect.value = suraNumber;
                 
                 // تحديث مصدر الصوت
-                updateAudioSource();
+                updateAudioSource(true);
             }
             
             // اختيار قارئ
@@ -922,7 +815,7 @@
                 });
                 
                 // تحديث مصدر الصوت
-                updateAudioSource();
+                updateAudioSource(true);
             }
             
             // تحديث شريط التقدم
