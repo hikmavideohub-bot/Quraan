@@ -185,6 +185,9 @@
         
         audio {
             width: 100%;
+            height: 50px;
+            background-color: #f1f1f1;
+            border-radius: 25px;
         }
         
         .custom-controls {
@@ -380,6 +383,15 @@
             color: white;
         }
         
+        .success-message {
+            color: #2c5f2d;
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -405,7 +417,7 @@
             <h1><i class="fas fa-quran"></i> مشغل القرآن الكريم</h1>
             <p class="subtitle">استمع إلى القرآن الكريم بأصوات أشهر القراء بدون إعلانات مزعجة</p>
             <div class="no-ads-badge">
-                <i class="fas fa-ad"></i> خالي من الإعلانات تمامًا
+                <i class="fas fa-بسم الله الرحمن الرحيم"></i>
             </div>
         </header>
         
@@ -458,6 +470,10 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div id="audio-test" class="success-message" style="display: none;">
+                        <i class="fas fa-volume-up"></i> الصوت يعمل بشكل صحيح!
+                    </div>
                 </div>
                 
                 <div class="current-playing" id="current-playing">
@@ -465,6 +481,9 @@
                     <div class="current-reciter">مشاري راشد العفاسي</div>
                     <div id="audio-loading" class="loading" style="display: none;">
                         <i class="fas fa-spinner fa-spin"></i> جار تحميل الصوت...
+                    </div>
+                    <div id="audio-error" class="warning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> تعذر تحميل الصوت. جرب قارئًا آخر.
                     </div>
                 </div>
             </section>
@@ -479,7 +498,11 @@
                 
                 <div class="warning">
                     <i class="fas fa-exclamation-triangle"></i> 
-                    تنبيه: جميع التسجيلات المعروضة هي روابط مباشرة من everyayah.com الموثوقة ولا تحتوي على إعلانات
+                    تنبيه: إذا لم يعمل الصوت، جرب تغيير القارئ أو تحديث الصفحة
+                </div>
+                
+                <div id="source-info" class="success-message" style="margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i> المصدر: mp3quran.net - متوافق مع جميع المتصفحات
                 </div>
             </section>
         </div>
@@ -513,6 +536,9 @@
         <footer>
             <p>مشغل القرآن الكريم &copy; <span id="current-year">2024</span> - صمم بحب لنشر القرآن الكريم</p>
             <p style="margin-top: 10px; font-size: 0.9rem;">جميع الحقوق محفوظة للمواقع المزودة للتسجيلات القرآنية</p>
+            <p style="margin-top: 5px; font-size: 0.8rem; color: #888;">
+                <i class="fas fa-wifi"></i> اتصال بالإنترنت مطلوب للاستماع
+            </p>
         </footer>
     </div>
 
@@ -521,43 +547,44 @@
             // تعيين السنة الحالية في التذييل
             document.getElementById('current-year').textContent = new Date().getFullYear();
             
-            // بيانات القراء مع روابط everyayah.com
+            // بيانات القراء مع روابط موثوقة من mp3quran.net
             const reciters = [
                 { 
                     id: "mishari", 
                     name: "مشاري راشد العفاسي", 
                     style: "حدر",
-                    code: "Mishari_al-Afasy_64kbps"
+                    // استخدام مصدر موثوق يعمل مع جميع المتصفحات
+                    baseUrl: "https://server8.mp3quran.net/afs"
                 },
                 { 
                     id: "abdulbasit", 
                     name: "عبد الباسط عبد الصمد", 
                     style: "ترتيل",
-                    code: "AbdulBaset_AbdulSamad_64kbps"
+                    baseUrl: "https://server8.mp3quran.net/abdulbasit"
                 },
                 { 
                     id: "husary", 
                     name: "محمود خليل الحصري", 
                     style: "ترتيل",
-                    code: "Husary_64kbps"
+                    baseUrl: "https://server8.mp3quran.net/husary"
                 },
                 { 
                     id: "saad", 
                     name: "سعد الغامدي", 
                     style: "ترتيل",
-                    code: "Saad_al-Ghamdi_64kbps"
+                    baseUrl: "https://server8.mp3quran.net/saood"
                 },
                 { 
                     id: "minshawi", 
                     name: "محمد صديق المنشاوي", 
                     style: "تجويد",
-                    code: "Minshawi_Mujawwad_64kbps"
+                    baseUrl: "https://server8.mp3quran.net/minshawi"
                 },
                 { 
                     id: "basfar", 
                     name: "عبد الله بصفر", 
                     style: "ترتيل",
-                    code: "Abdullah_Basfar_64kbps"
+                    baseUrl: "https://server8.mp3quran.net/basfar"
                 }
             ];
             
@@ -693,6 +720,8 @@
             const recitersGrid = document.getElementById('reciters-grid');
             const currentPlayingElement = document.getElementById('current-playing');
             const audioLoadingElement = document.getElementById('audio-loading');
+            const audioErrorElement = document.getElementById('audio-error');
+            const audioTestElement = document.getElementById('audio-test');
             
             // المتغيرات الحالية
             let currentReciter = reciters[0];
@@ -703,6 +732,10 @@
             
             // تهيئة واجهة المستخدم
             function initializeUI() {
+                // إخفاء رسائل الخطأ
+                audioErrorElement.style.display = 'none';
+                audioTestElement.style.display = 'none';
+                
                 // إنشاء خيارات السور في القائمة المنسدلة
                 suraSelect.innerHTML = '';
                 suras.forEach(sura => {
@@ -807,20 +840,19 @@
             
             // تحديث مصدر الصوت بناءً على القارئ والسورة الحالية
             function updateAudioSource() {
-                // إظهار رسالة التحميل
+                // إظهار رسالة التحميل وإخفاء رسائل الخطأ
                 audioLoadingElement.style.display = 'block';
+                audioErrorElement.style.display = 'none';
+                audioTestElement.style.display = 'none';
                 
-                // إنشاء رابط everyayah.com
-                // التنسيق: https://everyayah.com/data/القارئ/رقم_السورة_بثلاثة_أرقام.mp3
-                // مثال: https://everyayah.com/data/Mishari_al-Afasy_64kbps/001.mp3
+                // إنشاء رابط mp3quran.net
+                // التنسيق: https://server8.mp3quran.net/القارئ/رقم_السورة.mp3
+                // مثال: https://server8.mp3quran.net/afs/001.mp3
                 
                 const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
-                const audioUrl = `https://everyayah.com/data/${currentReciter.code}/${suraNumberFormatted}.mp3`;
+                const audioUrl = `${currentReciter.baseUrl}/${suraNumberFormatted}.mp3`;
                 
                 console.log(`جار تحميل الصوت من: ${audioUrl}`);
-                
-                // تحديث رابط الصوت
-                audioPlayer.src = audioUrl;
                 
                 // تحديث عرض المعلومات الحالية
                 currentPlayingElement.innerHTML = `
@@ -829,20 +861,24 @@
                     <div id="audio-loading" class="loading">
                         <i class="fas fa-spinner fa-spin"></i> جار تحميل الصوت...
                     </div>
+                    <div id="audio-error" class="warning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> تعذر تحميل الصوت. جرب قارئًا آخر.
+                    </div>
                 `;
+                
+                // إعادة تعيين مشغل الصوت
+                audioPlayer.src = audioUrl;
+                audioPlayer.load();
                 
                 // إعادة تعيين شريط التقدم
                 progressBar.style.width = '0%';
                 currentTimeDisplay.textContent = '0:00';
                 durationDisplay.textContent = '0:00';
                 
-                // محاولة تحميل الصوت
-                audioPlayer.load();
-                
                 // محاولة التشغيل بعد تحميل البيانات
                 audioPlayer.addEventListener('canplay', function onCanPlay() {
                     audioLoadingElement.style.display = 'none';
-                    audioPlayer.removeEventListener('canplay', onCanPlay);
+                    audioTestElement.style.display = 'block';
                     
                     // تحديث عرض المعلومات الحالية
                     currentPlayingElement.innerHTML = `
@@ -853,10 +889,18 @@
                         </div>
                     `;
                     
-                    // محاولة التشغيل التلقائي (قد لا يعمل في بعض المتصفحات)
-                    audioPlayer.play().catch(e => {
-                        console.log("التشغيل التلقائي غير مدعوم في هذا المتصفح. استخدم زر التشغيل.");
-                    });
+                    // محاولة التشغيل التلقائي (مع معالجة الأخطاء)
+                    const playPromise = audioPlayer.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.log("التشغيل التلقائي غير مدعوم. استخدم زر التشغيل.");
+                            // عرض رسالة للمستخدم
+                            audioTestElement.innerHTML = '<i class="fas fa-info-circle"></i> اضغط على زر التشغيل (▶️) للاستماع';
+                        });
+                    }
+                    
+                    audioPlayer.removeEventListener('canplay', onCanPlay);
                 }, { once: true });
                 
                 // معالجة الأخطاء
@@ -864,14 +908,9 @@
                     console.error('حدث خطأ في تحميل الصوت:', e);
                     audioLoadingElement.style.display = 'none';
                     
-                    // تحديث عرض المعلومات الحالية مع رسالة خطأ
-                    currentPlayingElement.innerHTML = `
-                        <div class="current-sura">${currentSura.number}. ${currentSura.name}</div>
-                        <div class="current-reciter">${currentReciter.name}</div>
-                        <div class="warning" style="margin-top: 10px; font-size: 0.9rem;">
-                            <i class="fas fa-exclamation-triangle"></i> تعذر تحميل الصوت. جرب قارئًا آخر.
-                        </div>
-                    `;
+                    // عرض رسالة الخطأ
+                    audioErrorElement.style.display = 'block';
+                    audioTestElement.style.display = 'none';
                     
                     audioPlayer.removeEventListener('error', onError);
                 }, { once: true });
@@ -974,6 +1013,12 @@
                     
                     audioPlayer.currentTime = (clickX / width) * duration;
                 }
+            });
+            
+            // اختبار الصوت عند التحميل
+            audioPlayer.addEventListener('canplay', function() {
+                console.log('✅ الصوت يعمل بشكل صحيح');
+                audioTestElement.style.display = 'block';
             });
             
             // بدء التشغيل عند تحميل الصفحة
