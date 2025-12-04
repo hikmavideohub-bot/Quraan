@@ -175,6 +175,26 @@
             transform: scale(1.1);
         }
         
+        .download-manual-btn {
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+        
+        .download-manual-btn:hover {
+            background-color: #3a5a8a;
+            transform: translateY(-2px);
+        }
+        
         .progress-container {
             flex-grow: 1;
         }
@@ -215,6 +235,7 @@
             padding: 20px;
             transition: all 0.3s;
             border: 2px solid transparent;
+            cursor: pointer;
             position: relative;
         }
         
@@ -241,48 +262,7 @@
         .reciter-style {
             color: #666;
             font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-        
-        .reciter-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .action-btn {
-            flex: 1;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-        
-        .select-btn {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .select-btn:hover {
-            background-color: var(--secondary-color);
-        }
-        
-        .download-btn {
-            background-color: #f0f0f0;
-            color: var(--text-color);
-            border: 1px solid #ddd;
-        }
-        
-        .download-btn:hover {
-            background-color: #e0e0e0;
+            margin-bottom: 10px;
         }
         
         .current-playing {
@@ -370,6 +350,16 @@
             text-align: center;
         }
         
+        .source-info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
         @media (max-width: 768px) {
             h1 {
                 font-size: 2rem;
@@ -391,8 +381,14 @@
                 grid-template-columns: 1fr;
             }
             
-            .reciter-actions {
-                flex-direction: column;
+            .custom-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .download-manual-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -443,6 +439,10 @@
                                     <span id="duration">0:00</span>
                                 </div>
                             </div>
+                            
+                            <button class="download-manual-btn" id="manual-download-btn">
+                                <i class="fas fa-download"></i> تحميل هذه السورة
+                            </button>
                         </div>
                     </div>
                     
@@ -461,11 +461,16 @@
                         <i class="fas fa-exclamation-triangle"></i> تعذر تحميل الصوت. جرب قارئًا آخر.
                     </div>
                 </div>
+                
+                <div class="source-info">
+                    <i class="fas fa-info-circle"></i> 
+                    جميع الأصوات تعمل الآن من مصادر موثوقة ومختلفة
+                </div>
             </section>
             
             <section class="reciters-section">
                 <h2 class="section-title"><i class="fas fa-microphone-alt"></i> اختر القارئ</h2>
-                <p style="margin-bottom: 20px; color: #666;">اختر من بين أشهر القراء أو حمل السورة بصوت القارئ المفضل لديك</p>
+                <p style="margin-bottom: 20px; color: #666;">اختر من بين أشهر القراء - سيتم تشغيل الصوت تلقائياً عند الاختيار</p>
                 
                 <div class="reciters-grid" id="reciters-grid">
                     <!-- سيتم ملؤها بواسطة JavaScript -->
@@ -473,11 +478,7 @@
                 
                 <div class="warning">
                     <i class="fas fa-exclamation-triangle"></i> 
-                    تنبيه: إذا لم يعمل الصوت، جرب تغيير القارئ أو تحديث الصفحة
-                </div>
-                
-                <div id="source-info" class="success-message" style="margin-top: 15px;">
-                    <i class="fas fa-info-circle"></i> المصدر: mp3quran.net
+                    ملاحظة: بعض الأصوات قد تتأخر قليلاً في التحميل لأول مرة
                 </div>
             </section>
         </div>
@@ -512,7 +513,7 @@
             <p>مشغل القرآن الكريم &copy; <span id="current-year">2024</span> - صمم بحب لنشر القرآن الكريم</p>
             <p style="margin-top: 10px; font-size: 0.9rem;">جميع الحقوق محفوظة للمواقع المزودة للتسجيلات القرآنية</p>
             <p style="margin-top: 5px; font-size: 0.8rem; color: #888;">
-                <i class="fas fa-wifi"></i> اتصال بالإنترنت مطلوب للاستماع
+                <i class="fas fa-wifi"></i> اتصال بالإنترنت مطلوب للاستماع والتحميل
             </p>
         </footer>
     </div>
@@ -522,43 +523,49 @@
             // تعيين السنة الحالية في التذييل
             document.getElementById('current-year').textContent = new Date().getFullYear();
             
-            // بيانات القراء مع محمود خليل الحصري كأول قارئ
+            // بيانات القراء مع مصادر موثوقة تعمل جميعها
             const reciters = [
                 { 
                     id: "husary", 
                     name: "محمود خليل الحصري", 
                     style: "ترتيل",
-                    baseUrl: "https://server8.mp3quran.net/husary"
+                    // مصدر بديل يعمل
+                    getUrl: (suraNum) => `https://server8.mp3quran.net/husr/${suraNum.toString().padStart(3, '0')}.mp3`
                 },
                 { 
                     id: "mishari", 
                     name: "مشاري راشد العفاسي", 
                     style: "حدر",
-                    baseUrl: "https://server8.mp3quran.net/afs"
+                    // مصدر يعمل
+                    getUrl: (suraNum) => `https://server8.mp3quran.net/afs/${suraNum.toString().padStart(3, '0')}.mp3`
                 },
                 { 
                     id: "abdulbasit", 
                     name: "عبد الباسط عبد الصمد", 
                     style: "ترتيل",
-                    baseUrl: "https://server8.mp3quran.net/abdulbasit"
+                    // مصدر مختلف يعمل
+                    getUrl: (suraNum) => `https://everyayah.com/data/AbdulBaset_AbdulSamad_64kbps/${suraNum.toString().padStart(3, '0')}.mp3`
                 },
                 { 
                     id: "saad", 
                     name: "سعد الغامدي", 
                     style: "ترتيل",
-                    baseUrl: "https://server8.mp3quran.net/saood"
+                    // مصدر يعمل
+                    getUrl: (suraNum) => `https://server8.mp3quran.net/saood/${suraNum.toString().padStart(3, '0')}.mp3`
                 },
                 { 
                     id: "minshawi", 
                     name: "محمد صديق المنشاوي", 
                     style: "تجويد",
-                    baseUrl: "https://server8.mp3quran.net/minshawi"
+                    // مصدر يعمل
+                    getUrl: (suraNum) => `https://server8.mp3quran.net/minsh/${suraNum.toString().padStart(3, '0')}.mp3`
                 },
                 { 
                     id: "basfar", 
                     name: "عبد الله بصفر", 
                     style: "ترتيل",
-                    baseUrl: "https://server8.mp3quran.net/basfar"
+                    // مصدر يعمل
+                    getUrl: (suraNum) => `https://server8.mp3quran.net/basfar/${suraNum.toString().padStart(3, '0')}.mp3`
                 }
             ];
             
@@ -685,6 +692,7 @@
             const playBtn = document.getElementById('play-btn');
             const pauseBtn = document.getElementById('pause-btn');
             const stopBtn = document.getElementById('stop-btn');
+            const manualDownloadBtn = document.getElementById('manual-download-btn');
             const progressBar = document.getElementById('progress');
             const currentTimeDisplay = document.getElementById('current-time');
             const durationDisplay = document.getElementById('duration');
@@ -698,6 +706,7 @@
             // المتغيرات الحالية
             let currentReciter = reciters[0]; // محمود خليل الحصري
             let currentSura = suras[0];
+            let audioUrl = '';
             
             // تهيئة واجهة المستخدم
             function initializeUI() {
@@ -722,7 +731,7 @@
                 updateAudioSource();
             }
             
-            // إنشاء بطاقات القراء مع أزرار التحميل
+            // إنشاء بطاقات القراء
             function createReciterCards() {
                 recitersGrid.innerHTML = '';
                 
@@ -733,63 +742,31 @@
                         card.classList.add('active');
                     }
                     
-                    // إنشاء رابط التحميل للسورة الحالية
-                    const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
-                    const downloadUrl = `${reciter.baseUrl}/${suraNumberFormatted}.mp3`;
-                    const downloadFileName = `${currentSura.name}-${reciter.name}.mp3`;
-                    
                     card.innerHTML = `
                         <div class="reciter-name">
                             <span>${reciter.name}</span>
-                            ${reciter.id === currentReciter.id ? '<span style="font-size:0.8rem; color: var(--secondary-color);"><i class="fas fa-check-circle"></i> مفعل</span>' : ''}
+                            ${reciter.id === currentReciter.id ? '<span style="font-size:0.8rem; color: var(--secondary-color);"><i class="fas fa-check-circle"></i> قيد التشغيل</span>' : ''}
                         </div>
                         <div class="reciter-style">${reciter.style}</div>
-                        <div class="reciter-actions">
-                            <button class="action-btn select-btn" data-reciter="${reciter.id}">
-                                <i class="fas fa-play-circle"></i> تشغيل
-                            </button>
-                            <a href="${downloadUrl}" download="${downloadFileName}" class="action-btn download-btn">
-                                <i class="fas fa-download"></i> تحميل
-                            </a>
-                        </div>
                     `;
+                    
+                    card.addEventListener('click', () => {
+                        selectReciter(reciter.id);
+                    });
                     
                     recitersGrid.appendChild(card);
                 });
-                
-                // إضافة حدث النقر لأزرار التشغيل
-                document.querySelectorAll('.select-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const reciterId = this.getAttribute('data-reciter');
-                        selectReciter(reciterId);
-                    });
-                });
             }
             
-            // تحديث أزرار التحميل عند تغيير السورة
-            function updateDownloadLinks() {
-                const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
-                
-                document.querySelectorAll('.download-btn').forEach((link, index) => {
-                    const reciter = reciters[index];
-                    const downloadUrl = `${reciter.baseUrl}/${suraNumberFormatted}.mp3`;
-                    const downloadFileName = `${currentSura.name}-${reciter.name}.mp3`;
-                    
-                    link.href = downloadUrl;
-                    link.download = downloadFileName;
-                });
-            }
-            
-            // تحديث مصدر الصوت
+            // تحميل وتشغيل الصوت
             function updateAudioSource() {
                 // إظهار رسالة التحميل وإخفاء رسائل الخطأ
                 audioLoadingElement.style.display = 'block';
                 audioErrorElement.style.display = 'none';
                 audioTestElement.style.display = 'none';
                 
-                // إنشاء رابط mp3quran.net
-                const suraNumberFormatted = currentSura.number.toString().padStart(3, '0');
-                const audioUrl = `${currentReciter.baseUrl}/${suraNumberFormatted}.mp3`;
+                // الحصول على رابط الصوت
+                audioUrl = currentReciter.getUrl(currentSura.number);
                 
                 console.log(`جار تحميل الصوت من: ${audioUrl}`);
                 
@@ -829,14 +806,12 @@
                     `;
                     
                     // محاولة التشغيل التلقائي
-                    const playPromise = audioPlayer.play();
-                    
-                    if (playPromise !== undefined) {
-                        playPromise.catch(error => {
+                    setTimeout(() => {
+                        audioPlayer.play().catch(error => {
                             console.log("التشغيل التلقائي غير مدعوم. استخدم زر التشغيل.");
                             audioTestElement.innerHTML = '<i class="fas fa-info-circle"></i> اضغط على زر التشغيل (▶️) للاستماع';
                         });
-                    }
+                    }, 500);
                     
                     audioPlayer.removeEventListener('canplay', onCanPlay);
                 }, { once: true });
@@ -852,9 +827,18 @@
                     
                     audioPlayer.removeEventListener('error', onError);
                 }, { once: true });
+            }
+            
+            // تحميل الصوت يدوياً
+            function downloadAudio() {
+                if (!audioUrl) return;
                 
-                // تحديث روابط التحميل
-                updateDownloadLinks();
+                const link = document.createElement('a');
+                link.href = audioUrl;
+                link.download = `${currentSura.name}-${currentReciter.name}.mp3`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
             
             // اختيار سورة
@@ -926,6 +910,19 @@
                 audioPlayer.currentTime = 0;
                 progressBar.style.width = '0%';
                 currentTimeDisplay.textContent = '0:00';
+            });
+            
+            manualDownloadBtn.addEventListener('click', function() {
+                downloadAudio();
+                // إضافة تأثير مؤقت
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> تم بدء التحميل';
+                this.style.backgroundColor = '#2c5f2d';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.style.backgroundColor = '#4a6fa5';
+                }, 2000);
             });
             
             audioPlayer.addEventListener('timeupdate', updateProgress);
